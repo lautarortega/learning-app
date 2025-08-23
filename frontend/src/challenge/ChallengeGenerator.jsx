@@ -1,4 +1,4 @@
-import "react";
+import "react"
 import {useState, useEffect} from "react"
 import {MCQChallenge} from "./MCQChallenge.jsx"
 import {useApi} from "../utils/api.js"
@@ -13,14 +13,14 @@ export function ChallengeGenerator() {
 
     useEffect(() => {
         fetchQuota()
-    })
+    }, [])
 
     const fetchQuota = async () => {
         try {
             const data = await makeRequest("quota")
             setQuota(data)
-        } catch (error) {
-            console.log(error)
+        } catch (err) {
+            console.log(err)
         }
     }
 
@@ -36,8 +36,8 @@ export function ChallengeGenerator() {
             )
             setChallenge(data)
             fetchQuota()
-        } catch (error) {
-            setError(error.message || "Fail to generate challenge")
+        } catch (err) {
+            setError(err.message || "Failed to generate challenge.")
         } finally {
             setIsLoading(false)
         }
@@ -55,12 +55,12 @@ export function ChallengeGenerator() {
 
         <div className="quota-display">
             <p>Challenges remaining today: {quota?.quota_remaining || 0}</p>
-            {quota?.quota_remaining ===0 && (
+            {quota?.quota_remaining === 0 && (
                 <p>Next reset: {getNextResetTime()?.toLocaleString()}</p>
             )}
         </div>
         <div className="difficulty-selector">
-            <label htmlFor="difficulty">Select Difficulty:</label>
+            <label htmlFor="difficulty">Select Difficulty</label>
             <select
                 id="difficulty"
                 value={difficulty}
@@ -85,6 +85,6 @@ export function ChallengeGenerator() {
             <p>{error}</p>
         </div>}
 
-        {challenge && <MCQChallenge challenge={challenge} />}
+        {challenge && <MCQChallenge challenge={challenge}/>}
     </div>
 }

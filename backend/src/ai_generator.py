@@ -1,16 +1,18 @@
-import os
-import json
 from typing import Dict, Any
-from openai import OpenAI
 import ollama
+from pydantic import BaseModel
+from langchain.output_parsers import PydanticOutputParser
 
-
-
-# client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-# ollama.chat(model="mistral", messages=[{"role": "user", "content": prompt}])
+class LLMChallengeOutput(BaseModel):
+    title: str
+    options: list[str]
+    correct_answer_id: int
+    explanation: str
 
 def generate_challenge_with_ai(difficulty: str) -> Dict[str, Any]:
-    system_prompt = """You are an expert coding challenge creator. 
+    parser = PydanticOutputParser(pydantic_object=LLMChallengeOutput)
+    format_instructions = parser.get_format_instructions()
+    system_prompt = f"""You are an expert coding challenge creator. 
         Your task is to generate a coding question with multiple choice answers.
         The question should be appropriate for the specified difficulty level.
 
@@ -19,12 +21,7 @@ def generate_challenge_with_ai(difficulty: str) -> Dict[str, Any]:
         For hard questions: Include advanced topics, design patterns, optimization techniques, or complex algorithms.
 
         Return the challenge in the following JSON structure:
-        {
-            "title": "The question title",
-            "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-            "correct_answer_id": 0, // Index of the correct answer (0-3)
-            "explanation": "Detailed explanation of why the correct answer is right"
-        }
+        {format_instructions}
 
         Make sure the options are plausible but with only one clearly correct answer.
         """
@@ -41,7 +38,8 @@ def generate_challenge_with_ai(difficulty: str) -> Dict[str, Any]:
 
         # content = response["choices"][0]["message"]["content"]
         content = response["message"]["content"]
-        challenge_data = json.loads(content)
+        parsed_content = parser.parse(content)
+        challenge_data = parsed_content.dict()
 
         required_fields = ["title", "options", "correct_answer_id", "explanation"]
         for field in required_fields:

@@ -51,7 +51,7 @@ async def generate_challenge(request: ChallengeRequest, request_obj: Request, db
             explanation=challenge_data["explanation"],
         )
 
-        quota.remaining_quota -= 1
+        quota.quota_remaining -= 1
         db.commit()
 
         return {
